@@ -25,6 +25,14 @@ $twig = Twig::create(__DIR__ . '/../templates', ['cache' => false]);
 
 $app->add(TwigMiddleware::create($app, $twig));
 
+$app->get('/', function (Request $request, Response $response) use ($twig) {
+    $teste = new SqlConnection();
+    
+    $teste->select("select * from tb_users");
+
+    return $response;
+});
+
 $app->get('/login', function (Request $request, Response $response) use ($twig) {
     return $twig->render($response, 'login.twig');
 });
@@ -32,10 +40,6 @@ $app->get('/login', function (Request $request, Response $response) use ($twig) 
 $app->post('/login', function (Request $request, Response $response) use ($twig) {
     $data = $request->getParsedBody();
     
-    $teste = new SqlConnection();
-
-    var_dump($teste);
-
     return $response;
 });
 

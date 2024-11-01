@@ -26,6 +26,42 @@ class SqlConnection {
         }
     }
 
+    private function bindParam($statement, $key, $value)
+	{
+
+		$statement->bindParam($key, $value);
+
+	}
+
+    private function setParams($statement, $parameters = array()) 
+    {
+        
+        foreach ($parameters as $key => $value) {
+			
+			$this->bindParam($statement, $key, $value);
+
+		}
+    }
+
+    public function query($query, $parameters) 
+    {
+        $stmt = $this->connection->prepare($query);
+        $this->setParams($stmt, $parameters);
+
+        $stmt->execute();
+    }
+
+    public function select($query, $parameters = array())
+    {
+        $stmt = $this->connection->prepare($query);
+        $this->setParams($stmt, $parameters);
+
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    }
+
 
 }
 
