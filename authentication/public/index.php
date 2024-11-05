@@ -28,7 +28,9 @@ $app->add(TwigMiddleware::create($app, $twig));
 $app->get('/', function (Request $request, Response $response) use ($twig) {
     $teste = new SqlConnection();
     
-    $teste->select("select * from tb_users");
+    var_dump($teste->select("select * from tb_users"));
+
+    
 
     return $response;
 });
