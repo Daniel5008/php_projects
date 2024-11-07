@@ -49,5 +49,49 @@ $app->get('/register', function (Request $request, Response $response) use ($twi
     return $twig->render($response, 'register.twig');
 });
 
+$app->post('/register', function (Request $request, Response $response) use ($twig) {
+    $postData = $request->getParsedBody();
+    $errorMessage = '';
+
+    if ($postData['password'] !== $postData['confirm_password']){
+        $errorMessage = "As senhas devem ser iguais.";
+    }
+
+    if (User::checkUsernameInUse($postData['username'])) {
+        $errorMessage = "Este nome de usuário já está em uso.";
+    }
+
+    if (User::checkEmailInUse($postData['username'])) {
+        $errorMessage = "Este email já está em uso.";
+    }
+
+    if ($errorMessage != '') {
+        return $twig->render($response, 'register.twig', [
+            'error' => $errorMessage
+        ]);
+    }
+
+    $user = new User();
+    $user->setData(
+        [
+            'username' => $postData['username'],
+            'email' => $postData['email'],
+            'password' => $postData['password']
+        ]
+    );
+
+    try {
+        $user->register();
+    } catch ( Exception $e) {
+        return $twig->render($response, 'register.twig', [
+            'error' => $e->getMessage()
+        ]);
+    }
+
+    $user->login($postData['username'], $postData['password']);
+
+    return $response;
+});
+
 $app->run();
 
