@@ -1,4 +1,6 @@
-<?php 
+<?php
+
+session_start();
 
 use DI\Container;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -6,7 +8,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 use Slim\Views\TwigMiddleware;
 use Slim\Views\Twig;
-use Src\Database\SqlConnection;
+use Src\Models\User;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -25,72 +27,66 @@ $twig = Twig::create(__DIR__ . '/../templates', ['cache' => false]);
 
 $app->add(TwigMiddleware::create($app, $twig));
 
-$app->get('/', function (Request $request, Response $response) use ($twig) {
-    $teste = new SqlConnection();
-    
-    var_dump($teste->select("select * from tb_users"));
-
-    
-
-    return $response;
-});
-
 $app->get('/login', function (Request $request, Response $response) use ($twig) {
-    return $twig->render($response, 'login.twig');
+   return $twig->render($response, 'login.twig');
 });
 
 $app->post('/login', function (Request $request, Response $response) use ($twig) {
-    $data = $request->getParsedBody();
-    
-    return $response;
+   $postData = $request->getParsedBody();
+
+   User::login($postData['username'], $postData['password']);
+
+   return $response;
 });
 
 $app->get('/register', function (Request $request, Response $response) use ($twig) {
-    return $twig->render($response, 'register.twig');
+   return $twig->render($response, 'register.twig');
 });
 
 $app->post('/register', function (Request $request, Response $response) use ($twig) {
-    $postData = $request->getParsedBody();
-    $errorMessage = '';
+   $postData = $request->getParsedBody();
+   $errorMessage = '';
 
-    if ($postData['password'] !== $postData['confirm_password']){
-        $errorMessage = "As senhas devem ser iguais.";
-    }
+   if ($postData['password'] !== $postData['confirm_password']) {
+      $errorMessage = "As senhas devem ser iguais.";
+   }
 
-    if (User::checkUsernameInUse($postData['username'])) {
-        $errorMessage = "Este nome de usuário já está em uso.";
-    }
+   if (User::checkUsernameInUse($postData['username'])) {
+      $errorMessage = "Este nome de usuário já está em uso.";
+   }
 
-    if (User::checkEmailInUse($postData['username'])) {
-        $errorMessage = "Este email já está em uso.";
-    }
+   if (User::checkEmailInUse($postData['username'])) {
+      $errorMessage = "Este email já está em uso.";
+   }
 
-    if ($errorMessage != '') {
-        return $twig->render($response, 'register.twig', [
-            'error' => $errorMessage
-        ]);
-    }
+   if ($errorMessage != '') {
+      return $twig->render($response, 'register.twig', [
+         'error' => $errorMessage
+      ]);
+   }
 
-    $user = new User();
-    $user->setData(
-        [
-            'username' => $postData['username'],
-            'email' => $postData['email'],
-            'password' => $postData['password']
-        ]
-    );
+   $user = new User();
+   $user->setData(
+      [
+         'username' => $postData['username'],
+         'email' => $postData['email'],
+         'password' => $postData['password']
+      ]
+   );
 
-    try {
-        $user->register();
-    } catch ( Exception $e) {
-        return $twig->render($response, 'register.twig', [
-            'error' => $e->getMessage()
-        ]);
-    }
+   try {
+      $user->register();
+   } catch (Exception $e) {
+      return $twig->render($response, 'register.twig', [
+         'error' => $e->getMessage()
+      ]);
+   }
 
-    $user->login($postData['username'], $postData['password']);
+   User::login($postData['username'], $postData['password']);
 
-    return $response;
+   var_dump($user);
+
+   return $response;
 });
 
 $app->run();
