@@ -36,7 +36,13 @@ $app->post('/login', function (Request $request, Response $response) use ($twig)
 
    User::login($postData['username'], $postData['password']);
 
-   return $response;
+   if ($_SESSION['loginError'] !== null) {
+      $loginError =  $_SESSION['loginError'];
+      $_SESSION['loginError'] = null;
+      return $twig->render($response, 'login.twig', ['error' => $loginError]);
+   }
+
+   return $response->withHeader('Location', '/home')->withStatus(302);
 });
 
 $app->get('/register', function (Request $request, Response $response) use ($twig) {
@@ -55,7 +61,7 @@ $app->post('/register', function (Request $request, Response $response) use ($tw
       $errorMessage = "Este nome de usuário já está em uso.";
    }
 
-   if (User::checkEmailInUse($postData['username'])) {
+   if (User::checkEmailInUse($postData['email'])) {
       $errorMessage = "Este email já está em uso.";
    }
 
@@ -84,9 +90,17 @@ $app->post('/register', function (Request $request, Response $response) use ($tw
 
    User::login($postData['username'], $postData['password']);
 
-   var_dump($user);
+   return $response;
+});
+
+$app->get('/home', function (Request $request, Response $response) {
+
+   $response->getBody()->write("Seja bem vindo user!");
+
+   var_dump($_SESSION);
 
    return $response;
+
 });
 
 $app->run();
