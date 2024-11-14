@@ -27,8 +27,11 @@ $twig = Twig::create(__DIR__ . '/../templates', ['cache' => false]);
 
 $app->add(TwigMiddleware::create($app, $twig));
 
-$app->get('/login', function (Request $request, Response $response) use ($twig) {
-   return $twig->render($response, 'login.twig');
+$app->get('/login', function (Request $request, Response $response) use ($twig) {   
+   $loginError = $_SESSION['loginError'];
+   $_SESSION['loginError'] = null;
+
+   return $twig->render($response, 'login.twig', ['error' => $loginError]);
 });
 
 $app->post('/login', function (Request $request, Response $response) use ($twig) {
@@ -37,38 +40,43 @@ $app->post('/login', function (Request $request, Response $response) use ($twig)
    User::login($postData['username'], $postData['password']);
 
    if ($_SESSION['loginError'] !== null) {
-      $loginError =  $_SESSION['loginError'];
-      $_SESSION['loginError'] = null;
-      return $twig->render($response, 'login.twig', ['error' => $loginError]);
+      return $response->withHeader('Location', '/login')->withStatus(302);
    }
 
    return $response->withHeader('Location', '/home')->withStatus(302);
 });
 
 $app->get('/register', function (Request $request, Response $response) use ($twig) {
-   return $twig->render($response, 'register.twig');
+   $registerError = $_SESSION['registerError'];
+   $formData = $_SESSION['formData'];
+
+   $_SESSION['registerError'] = null;
+   $_SESSION['formData'] = null;
+
+   return $twig->render($response, 'register.twig', [
+      'error' => $registerError,
+      'formData' => $formData
+   ]);
 });
 
 $app->post('/register', function (Request $request, Response $response) use ($twig) {
    $postData = $request->getParsedBody();
-   $errorMessage = '';
 
    if ($postData['password'] !== $postData['confirm_password']) {
-      $errorMessage = "As senhas devem ser iguais.";
+      $_SESSION['registerError'] = "As senhas devem ser iguais.";
    }
 
    if (User::checkUsernameInUse($postData['username'])) {
-      $errorMessage = "Este nome de usuário já está em uso.";
+      $_SESSION['registerError'] = "Este nome de usuário já está em uso.";
    }
 
    if (User::checkEmailInUse($postData['email'])) {
-      $errorMessage = "Este email já está em uso.";
+      $_SESSION['registerError'] = "Este email já está em uso.";
    }
 
-   if ($errorMessage != '') {
-      return $twig->render($response, 'register.twig', [
-         'error' => $errorMessage
-      ]);
+   if ($_SESSION['registerError'] !== null) {
+      $_SESSION['formData'] = $postData;
+      return $response->withHeader('Location', '/register')->withStatus(302);
    }
 
    $user = new User();
@@ -83,14 +91,13 @@ $app->post('/register', function (Request $request, Response $response) use ($tw
    try {
       $user->register();
    } catch (Exception $e) {
-      return $twig->render($response, 'register.twig', [
-         'error' => $e->getMessage()
-      ]);
+      $_SESSION['registerError'] = 'Ocorreu um erro ao realizar o registro, por favor tente novamente mais tarde.';
+      return $response->withHeader('Location', '/register')->withStatus(302);
    }
 
    User::login($postData['username'], $postData['password']);
 
-   return $response;
+   return $response->withHeader('Location', '/home')->withStatus(302);
 });
 
 $app->get('/home', function (Request $request, Response $response) {
