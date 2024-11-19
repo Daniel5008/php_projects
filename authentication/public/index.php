@@ -11,6 +11,7 @@ use Slim\Views\Twig;
 use Src\Models\User;
 
 require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../src/functions/helpers.php';
 
 $container = new Container();
 
@@ -28,27 +29,31 @@ $twig = Twig::create(__DIR__ . '/../templates', ['cache' => false]);
 $app->add(TwigMiddleware::create($app, $twig));
 
 $app->get('/login', function (Request $request, Response $response) use ($twig) {   
-   $loginError = $_SESSION['loginError'];
+   $loginError = isset($_SESSION['loginError']) ? $_SESSION['loginError'] : null;
    $_SESSION['loginError'] = null;
 
    return $twig->render($response, 'login.twig', ['error' => $loginError]);
 });
 
-$app->post('/login', function (Request $request, Response $response) use ($twig) {
+$app->post('/login', function (Request $request, Response $response) {
    $postData = $request->getParsedBody();
-
-   User::login($postData['username'], $postData['password']);
+   $ipAddress = $request->getServerParams()['REMOTE_ADDR'];
+   
+   User::login($postData['username'], $postData['password'], $ipAddress);
 
    if ($_SESSION['loginError'] !== null) {
-      return $response->withHeader('Location', '/login')->withStatus(302);
+      //return $response->withHeader('Location', '/login')->withStatus(302);
+      return redirect($response, '/login');
    }
 
-   return $response->withHeader('Location', '/home')->withStatus(302);
+   //return $response->withHeader('Location', '/home')->withStatus(302);
+   return redirect($response, '/home');
+
 });
 
 $app->get('/register', function (Request $request, Response $response) use ($twig) {
-   $registerError = $_SESSION['registerError'];
-   $formData = $_SESSION['formData'];
+   $registerError = isset($_SESSION['registerError']) ? $_SESSION['registerError'] : null;
+   $formData = isset($_SESSION['formData']) ? $_SESSION['formData'] : null;
 
    $_SESSION['registerError'] = null;
    $_SESSION['formData'] = null;
@@ -59,7 +64,7 @@ $app->get('/register', function (Request $request, Response $response) use ($twi
    ]);
 });
 
-$app->post('/register', function (Request $request, Response $response) use ($twig) {
+$app->post('/register', function (Request $request, Response $response) {
    $postData = $request->getParsedBody();
 
    if ($postData['password'] !== $postData['confirm_password']) {
@@ -76,7 +81,8 @@ $app->post('/register', function (Request $request, Response $response) use ($tw
 
    if ($_SESSION['registerError'] !== null) {
       $_SESSION['formData'] = $postData;
-      return $response->withHeader('Location', '/register')->withStatus(302);
+      // return $response->withHeader('Location', '/register')->withStatus(302);
+      return redirect($response, '/register');
    }
 
    $user = new User();
@@ -92,22 +98,34 @@ $app->post('/register', function (Request $request, Response $response) use ($tw
       $user->register();
    } catch (Exception $e) {
       $_SESSION['registerError'] = 'Ocorreu um erro ao realizar o registro, por favor tente novamente mais tarde.';
-      return $response->withHeader('Location', '/register')->withStatus(302);
+      return redirect($response, '/register');
    }
 
-   User::login($postData['username'], $postData['password']);
+   $ipAddress = $request->getServerParams()['REMOTE_ADDR'];
+   User::login($postData['username'], $postData['password'], $ipAddress);
 
-   return $response->withHeader('Location', '/home')->withStatus(302);
+   return redirect($response, '/home');
+
 });
 
-$app->get('/home', function (Request $request, Response $response) {
+$app->get('/home', function (Request $request, Response $response) use ($twig) {
 
-   $response->getBody()->write("Seja bem vindo user!");
+   if (!User::isUserLoggedIn()) {
+      return redirect($response, '/login');
+   }
 
-   var_dump($_SESSION);
+   $user = User::getFromSession();
+   $userData = $user->getValues();
 
-   return $response;
+   return $twig->render($response, 'home.twig', ['user' => $userData]);
 
+});
+
+$app->post('/logout', function (Request $request, Response $response) {
+   session_unset();
+   session_destroy();
+
+   return redirect($response, '/login');
 });
 
 $app->run();
