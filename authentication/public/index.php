@@ -42,11 +42,9 @@ $app->post('/login', function (Request $request, Response $response) {
    User::login($postData['username'], $postData['password'], $ipAddress);
 
    if ($_SESSION['loginError'] !== null) {
-      //return $response->withHeader('Location', '/login')->withStatus(302);
       return redirect($response, '/login');
    }
 
-   //return $response->withHeader('Location', '/home')->withStatus(302);
    return redirect($response, '/home');
 
 });
@@ -126,6 +124,11 @@ $app->post('/logout', function (Request $request, Response $response) {
    session_destroy();
 
    return redirect($response, '/login');
+});
+
+$app->get('/erro', function (Request $request, Response $response)  use ($twig) {
+   
+   return $twig->render($response, 'error.twig');
 });
 
 $app->run();
