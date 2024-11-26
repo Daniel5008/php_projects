@@ -43,16 +43,17 @@ composer install
 7. Acesse o sistema: Abra seu navegador e vá para http://localhost:8080.
 
 ## Estrutura do projeto
-project/
-├── public/                # Arquivos acessíveis publicamente
-│   ├── index.php          # Arquivo principal do Slim
-│   ├── css/               # Arquivos CSS externos
-├── src/                   # Código fonte
-│   ├── Database/          # Banco de dados
-│   ├── Models/            # Classes de manipulação de dados
-│   └── functions/         # Utilitários em geral
-├── templates/             # Arquivos Twig (views)
-├── .env                   # Configurações do ambiente (ignorado pelo Git)
-├── composer.json          # Dependências do projeto
-└── README.md              # Este arquivo
+   ```plaintext
+   project/
+   ├── public/                # Arquivos acessíveis publicamente
+   │   ├── index.php          # Arquivo principal do Slim
+   │   ├── css/               # Arquivos CSS externos
+   ├── src/                   # Código fonte
+   │   ├── Database/          # Banco de dados
+   │   ├── Models/            # Classes de manipulação de dados
+   │   └── functions/         # Utilitários em geral
+   ├── templates/             # Arquivos Twig (views)
+   ├── .env                   # Configurações do ambiente (ignorado pelo Git)
+   ├── composer.json          # Dependências do projeto
+   └── README.md              # Este arquivo
 
