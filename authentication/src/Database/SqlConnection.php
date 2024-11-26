@@ -22,7 +22,8 @@ class SqlConnection {
         try {
             $this->connection = new PDO("mysql:host=$host;dbname=$dbName", $user, $pass);
         } catch (\PDOException $e) {
-            die('Erro de conexão: ' . $e->getMessage());
+            header('Location: /erro');
+            exit;
         }
     }
 
@@ -54,6 +55,7 @@ class SqlConnection {
     public function select($query, $parameters = array())
     {
         $stmt = $this->connection->prepare($query);
+
         $this->setParams($stmt, $parameters);
 
         $stmt->execute();
