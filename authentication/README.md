@@ -37,9 +37,10 @@ composer install
 - Crie o banco de dados authentication_db e execute o script SQL fornecido na pasta src/database.
 
 5. Inicie o servidor:
-php -S localhost:8080 -t public
+   ````bash
+   php -S localhost:8080 -t public
 
-6. Acesse o sistema: Abra seu navegador e vá para http://localhost:8080.
+7. Acesse o sistema: Abra seu navegador e vá para http://localhost:8080.
 
 ## Estrutura do projeto
 project/
