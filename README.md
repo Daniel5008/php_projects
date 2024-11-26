@@ -6,9 +6,7 @@ Este repositório contém diversos projetos desenvolvidos em PHP, abrangendo dif
 
 Cada projeto está organizado em um diretório separado dentro da raiz do repositório. Abaixo estão os projetos disponíveis ou planejados:
 
-- **Projeto 1**: [Nome do Projeto] - Breve descrição (exemplo: "Sistema de autenticação com Slim e Twig").
-- **Projeto 2**: [Nome do Projeto] - Breve descrição (exemplo: "API RESTful para gerenciamento de tarefas").
-- **Projeto 3**: [Nome do Projeto] - Breve descrição (exemplo: "Sistema de blog simples com PHP e MySQL").
+- **Projeto 1**: Sistema de autenticação com Slim e Twig.
 
 ## Requisitos Gerais
 - **PHP**: Versão 8.0 ou superior (verifique o `README` individual de cada projeto para requisitos específicos).
