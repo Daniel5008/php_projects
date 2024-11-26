@@ -18,10 +18,10 @@ Este projeto é um sistema de autenticação simples desenvolvido em PHP, utiliz
 ## Instalação
 
 1. Clone o repositório:
-   git clone https://github.com/seu-usuario/seu-repositorio.git
-   cd seu-repositorio
+git clone https://github.com/seu-usuario/seu-repositorio.git
+cd seu-repositorio
 
-2. Instale as dependências do projeto:
+3. Instale as dependências do projeto:
 
 composer install
 
@@ -36,7 +36,7 @@ composer install
 - Crie o banco de dados authentication_db e execute o script SQL fornecido na pasta src/database.
 
 5. Inicie o servidor:
-  php -S localhost:8080 -t public
+php -S localhost:8080 -t public
 
 6. Acesse o sistema: Abra seu navegador e vá para http://localhost:8080.
 
