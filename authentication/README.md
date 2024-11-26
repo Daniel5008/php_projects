@@ -19,7 +19,7 @@ Este projeto é um sistema de autenticação simples desenvolvido em PHP, utiliz
 
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/seu-usuario/seu-repositorio.git
+   git clone https://github.com/Daniel5008/php_projects.git
    cd seu-repositorio
 
 3. Instale as dependências do projeto:
